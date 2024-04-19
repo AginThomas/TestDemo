@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow();
+        		.orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
 
         return convertToDTO(product);
     }
@@ -52,7 +52,8 @@ public class ProductServiceImpl implements ProductService {
     public void addProduct(ProductDTO productDTO) {
         Product product = convertToEntity(productDTO);
         productRepository.save(product);
-        Product productReturn=productRepository.findTopByOrderByProductIdDesc().orElse(null);
+        Product productReturn=productRepository.findTopByOrderByProductIdDesc()
+        		.orElseThrow(() -> new IllegalStateException("Failed to retrieve newly created product."));
         for (SaleDTO saleDTO : productDTO.getSales()) {
         	createSale(productReturn.getProductId(),saleDTO.getQuantity(),saleDTO.getSaleDate());
         }   
@@ -75,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateProduct(Long id, ProductDTO productDTO) {
         Product existingProduct = productRepository.findById(id)
-                .orElseThrow();
+        		.orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
 
         existingProduct.setName(productDTO.getName());
         existingProduct.setDescription(productDTO.getDescription());
@@ -88,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow();
+        		.orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
         productRepository.delete(product);
     }
 
